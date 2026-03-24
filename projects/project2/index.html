@@ -3,7 +3,11 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Journey is On</title>
+  <title>Journey is On | Hind Rashidi</title>
+
+  <!-- p5.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.4/p5.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.4/addons/p5.sound.min.js"></script>
 
   <style>
     body {
@@ -14,10 +18,10 @@
       overflow: hidden;
     }
 
-    .back-link {
+    .back-link,
+    .next-link {
       position: absolute;
       top: 20px;
-      left: 20px;
       font-size: 18px;
       color: #88ccff;
       text-decoration: none;
@@ -25,21 +29,37 @@
       padding: 8px 14px;
       border: 1px solid #88ccff;
       border-radius: 6px;
+      transition: 0.3s ease;
     }
 
-    .back-link:hover {
+    .back-link {
+      left: 20px;
+    }
+
+    .next-link {
+      right: 20px;
+    }
+
+    .back-link:hover,
+    .next-link:hover {
       color: #ffffff;
       background: #88ccff33;
       text-shadow: 0 0 10px #88ccff;
       box-shadow: 0 0 10px #88ccff;
     }
   </style>
-
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.4/p5.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.4/addons/p5.sound.min.js"></script>
-  <script src="project2.js"></script>
 </head>
+
 <body>
+
+  <!-- Back to Project 1 -->
   <a href="../project1/index.html" class="back-link">← Back</a>
+
+  <!-- Go to Project 3 -->
+  <a href="../project3/index.html" class="next-link">→ Next Project</a>
+
+  <!-- Your p5 sketch -->
+  <script src="project2.js"></script>
+
 </body>
 </html>
