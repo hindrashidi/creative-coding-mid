@@ -1,7 +1,7 @@
 let font;
-let textPoints = [];
-let ripples = [];
-let isInteractive = true;
+let textPoints = [];   // stores all text particles
+let ripples = [];      // stores ripple objects
+let isInteractive = true;  // controls intro state
 let clickSound;
 
 function preload() {
@@ -11,36 +11,38 @@ function preload() {
 
 function setup() {
   let canvas = createCanvas(windowWidth, windowHeight);
-  canvas.parent('canvas-container');
+  canvas.parent('canvas-container'); // puts canvas inside HTML container
   pixelDensity(1);
 
-  generateTextPoints();
+  generateTextPoints(); // turn text into particle points
 }
 
 function draw() {
-  background(12, 12, 26);
+  background(12, 12, 26); // clears screen each frame
 
   if (isInteractive) {
+    // create ripple effect near mouse
     if (frameCount % 2 === 0) {
       ripples.push(new Ripple(mouseX, mouseY, random(10, 30)));
     }
 
+    // update old ripples
     for (let i = ripples.length - 1; i >= 0; i--) {
       ripples[i].update();
       ripples[i].show();
       if (ripples[i].isDead()) {
-        ripples.splice(i, 1);
+        ripples.splice(i, 1); // remove ripple when too large
       }
     }
   }
 
-  drawDistortedText();
+  drawDistortedText(); // animate text particles
 }
 
 function generateTextPoints() {
   let textStr = "Interactive\nSystem";
 
-  // keep the SAME sizing style as your original code
+  // responsive text size
   let fontSize = width * 0.9 / 12;
   fontSize = max(fontSize, height * 0.15);
 
@@ -51,25 +53,27 @@ function generateTextPoints() {
   let startY = height * 0.15;
   let bbox = font.textBounds(textStr, width / 2, startY, fontSize);
 
+  // convert text into many points
   let points = font.textToPoints(
     textStr,
     width / 2,
     startY + bbox.h / 6,
     fontSize,
     {
-      sampleFactor: 0.4,
+      sampleFactor: 0.4,      // amount of points, simplifies the shape
       simplifyThreshold: 0
     }
   );
 
+  // each point becomes a particle object
   textPoints = points.map(p => ({
     x: p.x,
     y: p.y,
-    originalX: p.x,
+    originalX: p.x,   // original text shape
     originalY: p.y,
-    targetX: p.x,
+    targetX: p.x,     // where point wants to move
     targetY: p.y,
-    phase: random(TWO_PI),
+    phase: random(TWO_PI), // random direction for motion
     size: random(3, 8)
   }));
 }
@@ -77,50 +81,51 @@ function generateTextPoints() {
 function drawDistortedText() {
   noStroke();
   fill(255, 240, 200, 240);
-  textAlign(CENTER, CENTER);
 
   for (let point of textPoints) {
     if (isInteractive) {
-      // slowly return toward original position
+      // slowly pull points back to original text shape
       point.targetX = lerp(point.targetX, point.originalX, 0.04);
       point.targetY = lerp(point.targetY, point.originalY, 0.04);
 
-      // softer ripple effect
+      // ripple effect changes nearby particles
       for (let ripple of ripples) {
-        let d = dist(point.x, point.y, ripple.x, ripple.y);
+        let d = dist(point.x, point.y, ripple.x, ripple.y); // distance from ripple
         let distortion = (ripple.strength / max(d, 10)) * 0.4;
 
         point.targetX += cos(point.phase) * distortion;
         point.targetY += sin(point.phase) * distortion;
       }
 
-      // slower mouse separation
+      // mouse also pushes particles slightly apart
       let mouseD = dist(point.x, point.y, mouseX, mouseY);
       let mouseForce = (80 - mouseD) * 0.03;
 
       if (mouseD < 150) {
         point.targetX += cos(point.phase) * mouseForce * 0.3;
         point.targetY += sin(point.phase) * mouseForce * 0.3;
-        point.phase += 0.05;
+        point.phase += 0.05; // adds slight variation over time
       }
 
-      // smoother movement
+      // smooth movement toward target position
       point.x = lerp(point.x, point.targetX, 0.03);
       point.y = lerp(point.y, point.targetY, 0.03);
     }
 
-    ellipse(point.x, point.y, point.size);
+    ellipse(point.x, point.y, point.size); // draw each particle
   }
 }
 
 function mousePressed() {
   if (!isInteractive) {
+    // second click: play sound and go to project 1
     userStartAudio();
     if (clickSound) clickSound.play();
     window.location.href = "projects/project1/index.html";
     return;
   }
 
+  // first click: stop interaction and let text settle
   isInteractive = false;
   userStartAudio();
 
@@ -132,7 +137,7 @@ function mousePressed() {
 
 function windowResized() {
   resizeCanvas(windowWidth, windowHeight);
-  generateTextPoints();
+  generateTextPoints(); // remake particles for new screen size
 }
 
 class Ripple {
@@ -140,13 +145,13 @@ class Ripple {
     this.x = x;
     this.y = y;
     this.size = size;
-    this.maxSize = 150;
+    this.maxSize = 150;      // when ripple is too big, remove it
     this.strength = random(20, 50);
   }
 
   update() {
-    this.size += 4;
-    this.strength *= 0.95;
+    this.size += 4;          // ripple expands
+    this.strength *= 0.95;   // ripple weakens over time
   }
 
   show() {
@@ -157,6 +162,6 @@ class Ripple {
   }
 
   isDead() {
-    return this.size > this.maxSize;
+    return this.size > this.maxSize; // used to delete old ripples
   }
 }
