@@ -38,7 +38,7 @@ function draw() {
 }
 
 function generateTextPoints() {
-  let textStr = "Explore\nthe Solar\nSystem";
+  let textStr = "Interactive\nSystem";
 
   // keep the SAME sizing style as your original code
   let fontSize = width * 0.9 / 12;
