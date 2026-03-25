@@ -3,16 +3,34 @@
   <head>
     <script src="https://cdn.jsdelivr.net/npm/p5@1.11.11/lib/p5.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/p5@1.11.11/lib/addons/p5.sound.min.js"></script>
-    
-    
-    
+
     <link rel="stylesheet" type="text/css" href="style.css">
     <meta charset="utf-8" />
-
   </head>
   <body>
-    <main>
-    </main>
+    <button onclick="goBack()" style="
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      padding: 10px 16px;
+      font-size: 16px;
+      background: black;
+      color: white;
+      border: 1px solid white;
+      cursor: pointer;
+      z-index: 10;
+    ">
+      ← Back
+    </button>
+
+    <main></main>
+
+    <script>
+      function goBack() {
+        window.location.href = "../../index.html";
+      }
+    </script>
+
     <script src="project3.js"></script>
   </body>
 </html>
