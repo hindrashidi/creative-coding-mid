@@ -18,7 +18,7 @@ function setup() {
 }
 
 function draw() {
-  background(12, 12, 26); // ✅ FIXED (no trail)
+  background(12, 12, 26);
 
   if (isInteractive) {
     if (frameCount % 2 === 0) {
@@ -40,8 +40,8 @@ function draw() {
 function generateTextPoints() {
   let textStr = "Explore\nthe \nAI Solar System";
 
-  let fontSize = width * 0.9 / 12;
-  fontSize = max(fontSize, height * 0.15);
+  let fontSize = width * 0.6 / 12;
+  fontSize = max(fontSize, height * 0.1);
 
   textFont(font);
   textSize(fontSize);
@@ -73,9 +73,12 @@ function drawDistortedText() {
 
   for (let point of textPoints) {
     if (isInteractive) {
+      point.targetX = lerp(point.targetX, point.originalX, 0.04);
+      point.targetY = lerp(point.targetY, point.originalY, 0.04);
+
       for (let ripple of ripples) {
         let d = dist(point.x, point.y, ripple.x, ripple.y);
-        let distortion = ripple.strength / max(d, 10);
+        let distortion = (ripple.strength / max(d, 10)) * 0.4;
 
         point.targetX += cos(point.phase) * distortion;
         point.targetY += sin(point.phase) * distortion;
@@ -85,13 +88,13 @@ function drawDistortedText() {
       let mouseForce = (80 - mouseD) * 0.03;
 
       if (mouseD < 150) {
-        point.targetX += cos(point.phase) * mouseForce;
-        point.targetY += sin(point.phase) * mouseForce;
-        point.phase += 0.4;
+        point.targetX += cos(point.phase) * mouseForce * 0.3;
+        point.targetY += sin(point.phase) * mouseForce * 0.3;
+        point.phase += 0.05;
       }
 
-      point.x = lerp(point.x, point.targetX, 0.08);
-      point.y = lerp(point.y, point.targetY, 0.08);
+      point.x = lerp(point.x, point.targetX, 0.03);
+      point.y = lerp(point.y, point.targetY, 0.03);
     }
 
     ellipse(point.x, point.y, point.size);
