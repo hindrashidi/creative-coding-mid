@@ -1,79 +1,95 @@
-let step = 6;
-let colorModeState = 0;
+let t = 0;              // controls animation over time
+let sizes = [];         // spacing between rings  
+
+let tx, ty;             // leftover variables (not used now)
+let vx, vy;
+
+let hoverSound;         // sound for hover effect
+
+function preload() {
+  soundFormats('mp3');
+  hoverSound = loadSound('wobble.mp3'); // load sound file
+}
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
-  pixelDensity(1);
-  frameRate(30);
+  noFill();             // rings have no fill
+  strokeWeight(3);      // thickness of rings
+
+  // create different ring sizes
+  for (let i = 0; i < 6; i++) {
+    sizes.push(i * 15); // spacing between each ring
+  }
+
+  // leftover from earlier version (not used)
+  tx = random(width);
+  ty = random(height);
+
+  vx = random(-5, 5);
+  vy = random(-5, 5);
+
+  textAlign(CENTER, CENTER);
+  textSize(28);
+  textStyle(BOLD);
 }
 
 function draw() {
-  loadPixels();
+  background(10); // clears screen each frame
 
-  let cx = mouseX;
-  let cy = mouseY;
+  let cx = width / 2;   // center x
+  let cy = height / 2;  // center y
 
-  for (let y = 0; y < height; y += step) {
-    for (let x = 0; x < width; x += step) {
-      let dx = x - cx;
-      let dy = y - cy;
+  // detect if mouse is near the center
+  let d = dist(mouseX, mouseY, cx, cy);
+  let hoverRadius = 120;
+  let hoveringCircle = d < hoverRadius; // true if inside circle
 
-      let d = sqrt(dx * dx + dy * dy);
-      let a = atan2(dy, dx);
+  // base speed depends on mouse x position
+  let baseSpeed = map(mouseX, 0, width, 0.02, 0.09);
 
-      let mouseInfluence = mouseX * 0.001;
-      let swirl = a + d * 0.05 + frameCount * 0.03 + mouseInfluence;
+  let speed;
+  if (hoveringCircle) {
+    speed = baseSpeed * 2.5; // faster when hovering
+  } else {
+    speed = baseSpeed;
+  }
 
-      let v = 128 + 127 * sin(swirl);
-      v += random(-12, 12);
-      v = constrain(v, 0, 255);
+  // draw rings
+  noFill();
+  strokeWeight(3);
 
-      let r, g, b;
-      let light = map(mouseY, 0, height, 0.7, 1.4);
+  for (let i = 0; i < sizes.length; i++) {
+    let breathe = sin(t - i * 0.35); // wave motion
+    let r = 100 + breathe * 40 + sizes[i]; // radius changes over time
 
-      if (colorModeState === 0) {
-        r = map(v, 0, 255, 40, 150) * light;
-        g = map(v, 0, 255, 10, 70) * light;
-        b = map(v, 0, 255, 70, 200) * light;
-      } else if (colorModeState === 1) {
-        r = map(v, 0, 255, 10, 60) * light;
-        g = map(v, 0, 255, 40, 140) * light;
-        b = map(v, 0, 255, 90, 255) * light;
-      } else {
-        let grey = map(v, 0, 255, 15, 170) * light;
-        r = grey;
-        g = grey;
-        b = grey;
-      }
+    // change color when hovering
+    if (hoveringCircle) {
+      stroke(200, 220, 255); // glow effect
+    } else {
+      stroke(255, 210 - i * 25); // normal color
+    }
 
-      r = constrain(r, 0, 255);
-      g = constrain(g, 0, 255);
-      b = constrain(b, 0, 255);
+    circle(cx, cy, r * 2); // draw ring (diameter = r * 2)
+  }
 
-      for (let yy = 0; yy < step; yy++) {
-        for (let xx = 0; xx < step; xx++) {
-          let px = x + xx;
-          let py = y + yy;
+  t += speed; // updates animation
 
-          if (px < width && py < height) {
-            let i = (px + py * width) * 4;
-            pixels[i] = r;
-            pixels[i + 1] = g;
-            pixels[i + 2] = b;
-            pixels[i + 3] = 255;
-          }
-        }
-      }
+  // play sound only when hovering
+  if (hoveringCircle) {
+    if (hoverSound && !hoverSound.isPlaying()) {
+      hoverSound.loop(); // start sound once
+    }
+  } else {
+    if (hoverSound && hoverSound.isPlaying()) {
+      hoverSound.stop(); // stop when leaving
     }
   }
 
-  updatePixels();
-}
-
 function mousePressed() {
-  colorModeState = (colorModeState + 1) % 3;
+  userStartAudio(); // required to enable sound in browser
 }
 
 function windowResized() {
-  resizeCanvas(windowWidth, windowHeight);
+  resizeCanvas(windowWidth, windowHeight); // responsive canvas
+}
 }
