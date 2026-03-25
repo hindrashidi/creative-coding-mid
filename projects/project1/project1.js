@@ -6,21 +6,15 @@ let selectedPlanet = null;
 
 let rocks = [];
 
-// --- NEW: ambient sound variables ---
 let ambientSound;
-let isPlaying = false; // flag for playing
-// --------------------------------------
+let hasPlayedThisDrag = false;
 
-// { --------------------------------------
 function preload() {
-  // Load your ambient track (adjust path and file name)
   ambientSound = loadSound("ambient.mp3");
 }
-// --------------------------------------  }
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
-  // canvas.parent('canvas-container');
   angleMode(DEGREES);
 
   starsLayer = createGraphics(windowWidth, windowHeight);
@@ -121,6 +115,8 @@ function mousePressed() {
       selectedPlanet = p;
       p.dragging = true;
       clickedPlanet = true;
+
+      hasPlayedThisDrag = false;
       break;
     }
   }
@@ -135,13 +131,11 @@ function mouseDragged() {
     selectedPlanet.offsetX += mouseX - pmouseX;
     selectedPlanet.offsetY += mouseY - pmouseY;
 
-    // Start --------------------------------------
-    if (!isPlaying && ambientSound) {
-      ambientSound.loop();     // loop the track
-      ambientSound.setVolume(0.1); // keep it ambient
-      isPlaying = true;
+    if (!hasPlayedThisDrag && ambientSound) {
+      ambientSound.setVolume(0.1);
+      ambientSound.play();
+      hasPlayedThisDrag = true;
     }
-    // --------------------------------------  End
   }
 }
 
@@ -149,15 +143,9 @@ function mouseReleased() {
   if (selectedPlanet) {
     selectedPlanet.dragging = false;
     selectedPlanet = null;
-
-  // Start --------------------------------------
-   if (isPlaying && ambientSound) {
-      ambientSound.setVolume(0, 1.0); // fade out over 1 second
-      isPlaying = false;
-    }
-    // --------------------------------------  End
-
   }
+
+  hasPlayedThisDrag = false;
 }
 
 function windowResized() {
