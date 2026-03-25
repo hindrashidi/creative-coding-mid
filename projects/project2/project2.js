@@ -1,27 +1,34 @@
 let t = 0;
 let sizes = [];  
 
-// 🔥 Floating text variables
 let tx, ty;
 let vx, vy;
+
+let hoverSound;
+
+function preload() {
+  soundFormats('mp3');
+  hoverSound = loadSound('wobble.mp3');
+}
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
   noFill();
   strokeWeight(3);
 
-  // ring setup
   for (let i = 0; i < 6; i++) {
     sizes.push(i * 15);
   }
 
-  // 🎯 Initialize floating text
   tx = random(width);
   ty = random(height);
 
-  // random direction & speed
   vx = random(-5, 5);
   vy = random(-5, 5);
+
+  textAlign(CENTER, CENTER);
+  textSize(28);
+  textStyle(BOLD);
 }
 
 function draw() {
@@ -30,40 +37,57 @@ function draw() {
   let cx = width / 2;
   let cy = height / 2;
 
-  let speed = map(mouseX, 0, width, 0.02, 0.09);
+  // detect hover 
+  let d = dist(mouseX, mouseY, cx, cy);
+  let hoverRadius = 120;
+  let hoveringCircle = d < hoverRadius;
 
-  // 🔵 Animated rings
+  //SPEED 
+  let baseSpeed = map(mouseX, 0, width, 0.02, 0.09);
+
+  let speed;
+  if (hoveringCircle) {
+    speed = baseSpeed * 2.5; //  faster when hovering
+  } else {
+    speed = baseSpeed;
+  }
+
+  // draw rings
+  noFill();
+  strokeWeight(3);
+
   for (let i = 0; i < sizes.length; i++) {
     let breathe = sin(t - i * 0.35);
     let r = 100 + breathe * 40 + sizes[i];
 
-    stroke(255, 210 - i * 25);
+    //glow effect when hovered
+    if (hoveringCircle) {
+      stroke(200, 220, 255);
+    } else {
+      stroke(255, 210 - i * 25);
+    }
+
     circle(cx, cy, r * 2);
   }
 
   t += speed;
 
-  // 🚀 Move floating text
-  tx += vx;
-  ty += vy;
+  //  SOUND 
+  if (hoveringCircle) {
+    if (hoverSound && !hoverSound.isPlaying()) {
+      hoverSound.loop();
+    }
+  } else {
+    if (hoverSound && hoverSound.isPlaying()) {
+      hoverSound.stop();
+    }
+  }
 
-  // 🔁 Bounce off edges
-  if (tx < 0 || tx > width) vx *= -1;
-  if (ty < 0 || ty > height) vy *= -1;
+function mousePressed() {
+  userStartAudio();
+}
 
-  // // ✨ Glow effect
-  // drawingContext.shadowBlur = 20;
-  // drawingContext.shadowColor = 'rgba(100,200,255,0.8)';
-
-  // 📝 Draw text
-  // noStroke();
-  // fill(180, 220, 255);
-  textAlign(CENTER, CENTER);
-  textSize(28);
-  textStyle(BOLD);
-
-  text("You will reach your destination in 1 light year", tx, ty);
-
-  // // ❗ Reset glow
-  // drawingContext.shadowBlur = 0;
+function windowResized() {
+  resizeCanvas(windowWidth, windowHeight);
+}
 }
